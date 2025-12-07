@@ -1,2 +1,1 @@
-const Codes = data.match(/[LR]\d+/g);
-console.log(Codes);
+        // Check if we landed on 0
