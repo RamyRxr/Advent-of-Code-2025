@@ -125,16 +125,69 @@ for (let j = start; j <= end; j++) {
 ---
 
 ## Day 3
-**Challenge Name:** 
+**Challenge Name:** Lobby - Emergency Power Batteries
 
 **Concept:**
+Batteries are arranged in banks (each line of digits). Each digit represents a battery with a joltage rating (1-9).
+
+**Part 1:** Select exactly 2 batteries from each bank. The joltage is the number formed by those 2 digits in their original order. Find the maximum joltage possible for each bank.
+- Example: `12345` with batteries 2 and 4 → `24` jolts
+- `987654321111111` → `98` (first two batteries)
+- `818181911112111` → `92` (9 and 2 from different positions)
+
+**Part 2:** Select exactly 12 batteries from each bank to form the largest possible 12-digit number. Use a greedy stack approach to maximize the result.
+- Example: `234234234234278` → `434234234278` (removed 2, 3, 2 from start)
+- `818181911112111` → `888911112111` (kept the largest digits in order)
 
 **Solution Explanation:**
 
+For **Part 1:** Try all possible pairs of positions (j, k where j < k) and form a number from those digits. Track the maximum.
+
+For **Part 2:** Use a **greedy stack algorithm**:
+1. For each digit, maintain a stack
+2. While we need to remove digits AND current digit is larger than stack top AND we have enough remaining digits, pop from stack
+3. Push current digit
+4. Remove from the end if needed, keep exactly 12
+
 **Code:**
 ```javascript
+// Part 1: Find maximum joltage from 2 batteries
+let maxJoltage = 0;
+for (let j = 0; j < bank.length; j++) {
+    for (let k = j + 1; k < bank.length; k++) {
+        const joltage = parseInt(bank[j] + bank[k], 10);
+        if (joltage > maxJoltage) {
+            maxJoltage = joltage;
+        }
+    }
+}
 
+// Part 2: Greedy stack for maximum 12-digit number
+const targetLength = 12;
+let stack = [];
+let toRemove = bank.length - targetLength;
+
+for (let j = 0; j < bank.length; j++) {
+    const digit = bank[j];
+    while (toRemove > 0 && stack.length > 0 && stack[stack.length - 1] < digit && 
+           (bank.length - j) >= (targetLength - stack.length + 1)) {
+        stack.pop();
+        toRemove--;
+    }
+    stack.push(digit);
+}
+
+while (toRemove > 0) {
+    stack.pop();
+    toRemove--;
+}
+
+const joltageStr = stack.slice(0, targetLength).join("");
 ```
+
+**Results:**
+- **Part 1:** 5568503
+- **Part 2:** 10947209109
 
 ---
 
