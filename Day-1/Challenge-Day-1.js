@@ -1,5 +1,6 @@
 const input = require("fs");
-const data = input.readFileSync("Day-1-input.txt", "utf-8").trim();
+const path = require("path");
+const data = input.readFileSync(path.join(__dirname, "Day-1-input.txt"), "utf-8").trim();
 
 console.log("Data loaded successfully." + data.length + " characters.");
 console.log("First 100 characters: " + data.slice(0, 100));
