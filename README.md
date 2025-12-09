@@ -62,16 +62,65 @@ for (let i = 0; i < Codes.length; i++) {
 ---
 
 ## Day 2
-**Challenge Name:** 
+**Challenge Name:** Gift Shop - Invalid Product IDs
 
 **Concept:**
+An Elf accidentally added invalid product IDs to a database. An ID is invalid if it's a sequence of digits repeated at least once (or exactly twice for Part 1).
+
+**Part 1:** A number is invalid if it's a sequence repeated exactly twice (e.g., 11, 6464, 123123).
+**Part 2:** A number is invalid if it's a sequence repeated at least twice (e.g., 111, 1212, 123123123).
+
+You're given ranges of IDs (e.g., 11-22, 95-115) and must find all invalid IDs within each range, then sum them.
 
 **Solution Explanation:**
+For **Part 1:** Split the number string in half and check if both halves are identical.
+- `11`: "1" == "1" ✓ Invalid
+- `1010`: "10" == "10" ✓ Invalid
+- `55`: "5" == "5" ✓ Invalid
+
+For **Part 2:** Try all possible sequence lengths from 1 to half the number's length. If the entire number is made of that sequence repeated at least 2 times, it's invalid.
+- `111`: sequence "1" repeats 3 times ✓ Invalid
+- `999`: sequence "9" repeats 3 times ✓ Invalid
+- `12341234`: sequence "1234" repeats 2 times ✓ Invalid
 
 **Code:**
 ```javascript
+// Part 1: Exact duplicate
+for (let j = start; j <= end; j++) {
+    const jStr = j.toString();
+    if (jStr.length % 2 === 0) {
+        const half = jStr.length / 2;
+        if (jStr.substring(0, half) === jStr.substring(half)) {
+            results += j;
+        }
+    }
+}
 
+// Part 2: Repeated sequence (at least 2 times)
+for (let j = start; j <= end; j++) {
+    const jStr = j.toString();
+    for (let seqLen = 1; seqLen <= jStr.length / 2; seqLen++) {
+        if (jStr.length % seqLen === 0) {
+            const firstChunk = jStr.substring(0, seqLen);
+            let isRepeating = true;
+            for (let pos = seqLen; pos < jStr.length; pos += seqLen) {
+                if (jStr.substring(pos, pos + seqLen) !== firstChunk) {
+                    isRepeating = false;
+                    break;
+                }
+            }
+            if (isRepeating) {
+                results_2 += j;
+                break;
+            }
+        }
+    }
+}
 ```
+
+**Results:**
+- **Part 1:** 11023097
+- **Part 2:** 47039803
 
 ---
 
