@@ -192,16 +192,107 @@ const joltageStr = stack.slice(0, targetLength).join("");
 ---
 
 ## Day 4
-**Challenge Name:** 
+**Challenge Name:** Printing Department - Paper Roll Accessibility
 
 **Concept:**
+Paper rolls (@) are arranged on a large grid. A forklift can access a roll if it has **fewer than 4 paper rolls** as neighbors in the 8 adjacent positions (up, down, left, right, and 4 diagonals).
+
+**Part 1:** Count how many rolls can be accessed by a forklift.
+**Part 2:** Repeatedly remove accessible rolls (once removed, other rolls become accessible). Count the total number of rolls removed until none can be removed.
 
 **Solution Explanation:**
 
+For **Part 1:** Iterate through the grid. For each `@`, count its neighbors (using all 8 directions). If the count is less than 4, it's accessible. Sum all accessible rolls.
+
+For **Part 2:** Use a loop that repeatedly finds and removes all accessible rolls. Each iteration:
+1. Find all rolls with fewer than 4 neighbors
+2. Remove them from the grid
+3. Increment the total removed counter
+4. Repeat until no more rolls can be removed
+
+The key insight is that removing rolls changes the neighbor count of remaining rolls, potentially making new ones accessible.
+
 **Code:**
 ```javascript
+// Part 1: Count accessible rolls
+let accessible = 0;
+for (let row = 0; row < grid.length; row++) {
+    for (let col = 0; col < grid[row].length; col++) {
+        if (grid[row][col] === '@') {
+            let neighborCount = 0;
+            
+            for (let dRow = -1; dRow <= 1; dRow++) {
+                for (let dCol = -1; dCol <= 1; dCol++) {
+                    if (dRow === 0 && dCol === 0) continue;
+                    
+                    let newRow = row + dRow;
+                    let newCol = col + dCol;
+                    
+                    if (newRow >= 0 && newRow < grid.length && 
+                        newCol >= 0 && newCol < grid[newRow].length) {
+                        if (grid[newRow][newCol] === '@') {
+                            neighborCount++;
+                        }
+                    }
+                }
+            }
+            
+            if (neighborCount < 4) {
+                accessible++;
+            }
+        }
+    }
+}
 
+// Part 2: Repeatedly remove accessible rolls
+let totalRemoved = 0;
+let canRemove = true;
+
+while (canRemove) {
+    canRemove = false;
+    let toRemove = [];
+    
+    // Find all accessible rolls
+    for (let row = 0; row < grid.length; row++) {
+        for (let col = 0; col < grid[row].length; col++) {
+            if (grid[row][col] === '@') {
+                let neighborCount = 0;
+                
+                for (let dRow = -1; dRow <= 1; dRow++) {
+                    for (let dCol = -1; dCol <= 1; dCol++) {
+                        if (dRow === 0 && dCol === 0) continue;
+                        
+                        let newRow = row + dRow;
+                        let newCol = col + dCol;
+                        
+                        if (newRow >= 0 && newRow < grid.length && 
+                            newCol >= 0 && newCol < grid[newRow].length) {
+                            if (grid[newRow][newCol] === '@') {
+                                neighborCount++;
+                            }
+                        }
+                    }
+                }
+                
+                if (neighborCount < 4) {
+                    toRemove.push({row, col});
+                    canRemove = true;
+                }
+            }
+        }
+    }
+    
+    // Remove them
+    for (let {row, col} of toRemove) {
+        grid[row][col] = '.';
+        totalRemoved++;
+    }
+}
 ```
+
+**Results:**
+- **Part 1:** (Run code to get result)
+- **Part 2:** (Run code to get result)
 
 ---
 
