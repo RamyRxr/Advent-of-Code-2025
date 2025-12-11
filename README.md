@@ -296,6 +296,60 @@ while (canRemove) {
 
 ---
 
+## Day 6
+**Challenge Name:** Trash Compactor - Cephalopod Math
+
+**Concept:**
+A math worksheet has problems arranged horizontally in columns. Numbers are arranged vertically, with an operation symbol (+/-) at the bottom. Problems are separated by columns of spaces.
+
+**Part 1:** Read problems left-to-right. Each space-separated number is extracted left-to-right from each row, then apply the operation to calculate the result. Sum all problem results.
+**Part 2:** Read problems right-to-left. Each **column** (reading top-to-bottom) forms ONE number. Process columns from right-to-left within each problem, then apply the operation. Sum all problem results.
+
+**Solution Explanation:**
+
+For **Part 1:** Parse horizontally - extract space-separated numbers from each row within a problem range.
+
+For **Part 2:** Parse vertically - for each column from right-to-left:
+1. Read the column top-to-bottom to form the number
+2. Collect all numbers
+3. Apply the operation to get the result
+
+**Code:**
+```javascript
+// Part 1: Space-separated numbers left-to-right
+for (let row = 0; row < lines.length - 1; row++) {
+    const problemLine = lines[row].substring(prob.start, prob.end);
+    const tokens = problemLine.split(/\s+/).filter(t => t.length > 0);
+    for (let token of tokens) {
+        if (!isNaN(token)) {
+            numbers.push(parseInt(token));
+        }
+    }
+}
+
+// Part 2: Each column top-to-bottom, process right-to-left
+for (let col = prob.end - 1; col >= prob.start; col--) {
+    let numStr = "";
+    for (let row = 0; row < lines.length - 1; row++) {
+        if (col < lines[row].length) {
+            const char = lines[row][col];
+            if (char >= '0' && char <= '9') {
+                numStr += char;
+            }
+        }
+    }
+    if (numStr) {
+        numbers.push(parseInt(numStr));
+    }
+}
+```
+
+**Results:**
+- **Part 1:** 4648618073226
+- **Part 2:** 7329921182115
+
+---
+
 ## Day 5
 **Challenge Name:** Cafeteria - Fresh Ingredient ID Database
 
