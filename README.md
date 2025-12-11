@@ -297,16 +297,65 @@ while (canRemove) {
 ---
 
 ## Day 5
-**Challenge Name:** 
+**Challenge Name:** Cafeteria - Fresh Ingredient ID Database
 
 **Concept:**
+You have a database with two sections: fresh ingredient ID ranges and a list of available ingredient IDs. A range like `3-5` means IDs 3, 4, and 5 are fresh. Ranges can overlap.
+
+**Part 1:** Given available ingredient IDs, count how many fall within at least one fresh range.
+**Part 2:** Ignore the available IDs list. Instead, find all unique IDs that the fresh ranges cover (accounting for overlaps). Count the total.
 
 **Solution Explanation:**
 
+For **Part 1:** Check each available ingredient ID against all ranges. If it falls in ANY range, count it as fresh.
+- Example: ID 5 is fresh if it's in range 3-5, even if not in other ranges
+- ID 32 is NOT fresh if it's outside all ranges
+
+For **Part 2:** Merge all overlapping ranges, then count total unique IDs:
+1. Sort ranges by start position
+2. Merge overlapping/adjacent ranges (e.g., 3-5 and 5-10 → 3-10)
+3. Sum the counts: for each merged range, add (end - start + 1)
+
 **Code:**
 ```javascript
+// Part 1: Check each ingredient against all ranges
+let freshCount = 0;
+for (let id of ingredients) {
+    let isFresh = false;
+    for (let range of ranges) {
+        if (id >= range.start && id <= range.end) {
+            isFresh = true;
+            break;
+        }
+    }
+    if (isFresh) freshCount++;
+}
 
+// Part 2: Merge overlapping ranges and count unique IDs
+ranges.sort((a, b) => a.start - b.start);
+const mergedRanges = [];
+for (let range of ranges) {
+    if (mergedRanges.length === 0) {
+        mergedRanges.push(range);
+    } else {
+        const lastRange = mergedRanges[mergedRanges.length - 1];
+        if (range.start <= lastRange.end + 1) {
+            lastRange.end = Math.max(lastRange.end, range.end);
+        } else {
+            mergedRanges.push(range);
+        }
+    }
+}
+
+let totalFreshIds = 0;
+for (let range of mergedRanges) {
+    totalFreshIds += (range.end - range.start + 1);
+}
 ```
+
+**Results:**
+- **Part 1:** 694
+- **Part 2:** 352716206375547
 
 ---
 
