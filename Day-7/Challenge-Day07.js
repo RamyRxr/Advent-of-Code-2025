@@ -54,16 +54,15 @@ console.log("Part 1 Result: " + splitCount);
 
 /*============================= Part 2 =====================================*/
 
-// Count total number of distinct timelines (paths) that reach exits
+
 const memo2 = {};
 
 function countTimelines(row, col) {
-    // Out of bounds - no timelines from here
+
     if (row >= grid.length || col < 0 || col >= grid[row].length) {
         return 0;
     }
 
-    // At last row - this is 1 timeline that exits
     if (row === grid.length - 1) {
         return 1;
     }
@@ -77,11 +76,13 @@ function countTimelines(row, col) {
     const cell = grid[row][col];
 
     if (cell === '^') {
-        // Splitter: count timelines from both paths
+
         count = countTimelines(row + 1, col - 1) + countTimelines(row + 1, col + 1);
+    
     } else {
-        // Empty cell or start: continue downward
+
         count = countTimelines(row + 1, col);
+
     }
 
     memo2[key] = count;

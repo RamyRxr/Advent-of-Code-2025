@@ -428,16 +428,98 @@ for (let range of mergedRanges) {
 ---
 
 ## Day 7
-**Challenge Name:** 
+**Challenge Name:** Laboratories - Tachyon Manifold Beam Splitting
 
 **Concept:**
+A tachyon beam enters a manifold at position S and moves downward. When the beam hits a splitter (`^`), it splits into two beams going left and right. We need to count:
+- **Part 1:** How many times the beam splits
+- **Part 2:** How many different timelines (distinct paths) the tachyon particle can take through the manifold
 
-**Solution Explanation:**
+**Part 1 Explanation:**
+Use BFS (breadth-first search) to simulate the beam propagation:
+1. Start from the row below S
+2. Track visited states as "row,col" to avoid infinite loops
+3. For each position:
+   - If it's a splitter (`^`): increment split count and add both left and right next positions to queue
+   - Otherwise: continue downward
+4. Stop when the beam exits the grid
+
+**Part 2 Explanation:**
+Use recursive DFS with memoization to count all possible paths:
+1. From any position (row, col), calculate how many distinct timelines reach an exit
+2. **Base case:** If at the last row, that's 1 timeline
+3. **If out of bounds:** 0 timelines
+4. **If splitter:** Sum timelines from left path + timelines from right path (quantum splitting)
+5. **Otherwise:** Timelines = count from moving downward
+6. Memoize results for each (row, col) to avoid recomputation
+
+The key insight for Part 2 is that each splitter creates a bifurcation in timelines, causing exponential growth. We count all distinct paths, which grows very large due to the many possible combinations of left/right choices at each splitter.
 
 **Code:**
 ```javascript
+// Part 1: BFS counting splits
+let splitCount = 0;
+const queue = [[1, startCol]];
+const visited = new Set();
 
+while (queue.length > 0) {
+    const [row, col] = queue.shift();
+    
+    if (row < 0 || row >= grid.length || col < 0 || col >= grid[row].length) {
+        continue;
+    }
+    
+    const state = row + "," + col;
+    if (visited.has(state)) continue;
+    visited.add(state);
+    
+    const cell = grid[row][col];
+    
+    if (cell === '^') {
+        splitCount++;
+        queue.push([row + 1, col - 1]);
+        queue.push([row + 1, col + 1]);
+    } else if (cell === '.' || cell === 'S') {
+        queue.push([row + 1, col]);
+    }
+}
+
+// Part 2: Recursive DFS with memoization counting paths
+const memo2 = {};
+
+function countTimelines(row, col) {
+    if (row >= grid.length || col < 0 || col >= grid[row].length) {
+        return 0;
+    }
+    
+    if (row === grid.length - 1) {
+        return 1;
+    }
+    
+    const key = row + "," + col;
+    if (memo2[key] !== undefined) {
+        return memo2[key];
+    }
+    
+    let count = 0;
+    const cell = grid[row][col];
+    
+    if (cell === '^') {
+        count = countTimelines(row + 1, col - 1) + countTimelines(row + 1, col + 1);
+    } else {
+        count = countTimelines(row + 1, col);
+    }
+    
+    memo2[key] = count;
+    return count;
+}
+
+const part2Result = countTimelines(1, startCol);
 ```
+
+**Results:**
+- **Part 1:** 1570 (beam splits 1570 times)
+- **Part 2:** 15118009521693 (15 trillion+ distinct timelines)
 
 ---
 
@@ -511,4 +593,4 @@ for (let range of mergedRanges) {
 
 ---
 
-*Last Updated: December 6, 2025*
+*Last Updated: December 12, 2025*
