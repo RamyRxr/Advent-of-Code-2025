@@ -524,16 +524,100 @@ const part2Result = countTimelines(1, startCol);
 ---
 
 ## Day 8
-**Challenge Name:** 
+**Challenge Name:** Playground - Junction Box Circuit Connection
 
 **Concept:**
+Junction boxes are suspended in 3D space. To connect them with light strings, we need to identify which pairs are closest together. The Elves want to:
+- **Part 1:** Connect the 1000 closest pairs of boxes and find the product of the three largest resulting circuits
+- **Part 2:** Keep connecting boxes by closest distance until all boxes form one single circuit, then multiply the X coordinates of the final two boxes connected
 
 **Solution Explanation:**
 
+This is a classic **Minimum Spanning Tree (MST)** problem. We use the **Union-Find (Disjoint Set Union)** data structure:
+
+**Algorithm:**
+1. Calculate Euclidean distance between all pairs: $\sqrt{(x_1-x_2)^2 + (y_1-y_2)^2 + (z_1-z_2)^2}$
+2. Sort all distances from smallest to largest
+3. Use Union-Find to efficiently track which boxes are connected:
+   - Each box starts in its own circuit
+   - For each pair (in distance order), try to union them
+   - If they're already connected, skip; if not, merge the circuits
+
+**Union-Find Operations:**
+- `find(x)`: Find the root/representative of x's circuit (with path compression)
+- `union(x, y)`: Merge two circuits using union by rank for efficiency
+
+**Part 1:** Apply the first 1000 closest pairs, then count circuit sizes
+**Part 2:** Keep applying pairs until all boxes form one circuit, track the final pair
+
 **Code:**
 ```javascript
+class DisjointSetUnion {
+    constructor(numElements) {
+        this.parentChain = Array.from({ length: numElements }, (_, i) => i);
+        this.hierarchyRank = Array(numElements).fill(0);
+    }
 
+    findRoot(element) {
+        if (this.parentChain[element] !== element) {
+            this.parentChain[element] = this.findRoot(this.parentChain[element]);
+        }
+        return this.parentChain[element];
+    }
+
+    mergeSet(elemA, elemB) {
+        const rootA = this.findRoot(elemA);
+        const rootB = this.findRoot(elemB);
+        if (rootA === rootB) return false;
+        
+        if (this.hierarchyRank[rootA] < this.hierarchyRank[rootB]) {
+            this.parentChain[rootA] = rootB;
+        } else if (this.hierarchyRank[rootA] > this.hierarchyRank[rootB]) {
+            this.parentChain[rootB] = rootA;
+        } else {
+            this.parentChain[rootB] = rootA;
+            this.hierarchyRank[rootA]++;
+        }
+        return true;
+    }
+}
+
+// Calculate all distances and sort
+const distances = [];
+for (let i = 0; i < boxes.length; i++) {
+    for (let j = i + 1; j < boxes.length; j++) {
+        const dist = Math.sqrt((boxes[i].x - boxes[j].x)**2 + 
+                              (boxes[i].y - boxes[j].y)**2 + 
+                              (boxes[i].z - boxes[j].z)**2);
+        distances.push({ i, j, dist });
+    }
+}
+distances.sort((a, b) => a.dist - b.dist);
+
+// Part 1: Connect first 1000 pairs
+const dsu1 = new DisjointSetUnion(boxes.length);
+for (let i = 0; i < 1000; i++) {
+    dsu1.mergeSet(distances[i].i, distances[i].j);
+}
+// Count and multiply three largest circuits
+
+// Part 2: Connect until all in one circuit
+const dsu2 = new DisjointSetUnion(boxes.length);
+let circuitCount = boxes.length;
+let lastPair = null;
+for (let dist of distances) {
+    if (circuitCount === 1) break;
+    if (dsu2.mergeSet(dist.i, dist.j)) {
+        circuitCount--;
+        lastPair = dist;
+    }
+}
+// Multiply X coordinates of lastPair
 ```
+
+**Results:**
+- **Part 1:** 50568 (product of largest circuits: 43 × 42 × 28)
+- **Part 2:** 36045012 (X coordinates of final pair: 15837 × 2276)
 
 ---
 
